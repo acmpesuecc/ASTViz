@@ -82,7 +82,7 @@ int main() {
     while (!WindowShouldClose()) {
         float zoomSpeed = 0.1f;
         zoom += GetMouseWheelMove() * zoomSpeed;
-        const char* bigText = "Yo MAMA";
+        const char* bigText = "TREEEEEE";
         int fontSize = 80;
         int textWidth = MeasureText(bigText, fontSize);
         int xPosition = (GetScreenWidth() - textWidth) / 2; 
