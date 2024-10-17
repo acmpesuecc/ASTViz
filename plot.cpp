@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <ostream>
 #include <raylib.h>
+#include <string>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -130,11 +132,17 @@ Vector2 Vector2Scale(Vector2 v, float scale) {
     return (Vector2){v.x * scale, v.y * scale};
 }
 
-int main() {
-    InitWindow(1200, 900, "Beautiful ASTViz with Search");
+int main(int argc, char* argv[]) {
+    if (argc<2) {
+        std::cerr << "Usage" << argv[0] << "<path-to-clangAST>" << std::endl;
+        return 1;
+    }
+    InitWindow(1200, 900, "ASTViz");
     SetTargetFPS(60);
+
+    std::string filePath = argv[1];
     
-    std::ifstream astFile("ast.json");
+    std::ifstream astFile(filePath);
     nlohmann::json astJson;
     astFile >> astJson;
     ASTNode* root = ParseAST(astJson);
