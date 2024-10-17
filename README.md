@@ -34,5 +34,7 @@ clang -Xclang -ast-dump=json -fsyntax-only x.c > ast.json
 
 ## Resources
 [Jonas Devlieghere's Blog](https://jonasdevlieghere.com/post/understanding-the-clang-ast/)
+
 [Official Clang AST documentation](https://clang.llvm.org/docs/IntroductionToTheClangAST.html)
+
 [Baby steps with LibClang](https://bastian.rieck.me/blog/2015/baby_steps_libclang_ast/)
