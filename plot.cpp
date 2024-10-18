@@ -88,34 +88,34 @@ void ResetHighlight(ASTNode* node) {
 
 void DrawAST(ASTNode* node, Vector2 position, float x_offset, float y_offset, float zoom, Vector2 offset, float time) {
     Vector2 adjustedPosition = { (position.x + offset.x) * zoom, (position.y + offset.y) * zoom };
-    
-    
+
+
     node->animationProgress = fmin(node->animationProgress + 0.05f, 1.0f);
     float scale = CustomEaseElasticOut(node->animationProgress);
-    
-    
-    Color baseColor = node->highlighted ? ORANGE : SKYBLUE;
-    Color gradientColor = LerpColor(baseColor, DARKBLUE, (sinf(time * 2 + adjustedPosition.x * 0.01f) + 1) * 0.5f);
-    
-    
-    DrawCircleGradient(adjustedPosition.x, adjustedPosition.y, 40 * zoom * scale, gradientColor, DARKBLUE);
+
+
+    Color baseColor = node->highlighted ? DARKBLUE: PURPLE;
+    Color gradientColor = LerpColor(baseColor, BLACK, (sinf(time * 2 + adjustedPosition.x * 0.01f) + 1) * 0.5f);
+
+
+    DrawCircleGradient(adjustedPosition.x, adjustedPosition.y, 40 * zoom * scale, gradientColor, BLACK);
     DrawCircleLines(adjustedPosition.x, adjustedPosition.y, 40 * zoom * scale, WHITE);
-    
-    
+
+
     int fontSize = 10 * zoom * scale;
     DrawText(node->name.c_str(), adjustedPosition.x - MeasureText(node->name.c_str(), fontSize) / 2, adjustedPosition.y - fontSize / 2, fontSize, WHITE);
-    
+
     float x_pos = position.x - (x_offset * (node->children.size() - 1)) / 2;
     for (auto& child : node->children) {
-        Vector2 childPos = {x_pos, position.y + y_offset};
+        Vector2 childPos = {x_pos, position.y + y_offset*0.8f};
         Vector2 adjustedChildPos = {(childPos.x + offset.x) * zoom, (childPos.y + offset.y) * zoom};
-        
-        
+
+
         Vector2 control = {(adjustedPosition.x + adjustedChildPos.x) / 2, (adjustedPosition.y + adjustedChildPos.y) / 2};
-        Color lineColor = (node->highlighted && child->highlighted) ? ORANGE : Fade(LIGHTGRAY, 0.6f);
+        Color lineColor = (node->highlighted && child->highlighted) ? DARKBLUE : Fade(GRAY, 0.6f);
         DrawLineBezierQuad(adjustedPosition, adjustedChildPos, control, 2 * zoom, lineColor);
-        
-        DrawAST(child, childPos, x_offset / 2, y_offset, zoom, offset, time);
+
+        DrawAST(child, childPos, x_offset / 2, y_offset*0.8f, zoom, offset, time);
         x_pos += x_offset;
     }
 }
@@ -141,27 +141,27 @@ int main(int argc, char* argv[]) {
     SetTargetFPS(60);
 
     std::string filePath = argv[1];
-    
+
     std::ifstream astFile(filePath);
     nlohmann::json astJson;
     astFile >> astJson;
     ASTNode* root = ParseAST(astJson);
-    
+
     float zoom = 1.0f;
     Vector2 offset = {0, 0};
     Vector2 dragStart = {0, 0};
     bool dragging = false;
     bool typing = false;
     std::string searchQuery = "";
-    
+
     while (!WindowShouldClose()) {
         float time = GetTime();
         float zoomSpeed = 0.1f;
         zoom += GetMouseWheelMove() * zoomSpeed;
-        
+
         if (zoom < 0.2f) zoom = 0.2f;
         if (zoom > 3.0f) zoom = 3.0f;
-        
+
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
             if (!dragging) {
                 dragging = true;
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
         } else {
             dragging = false;
         }
-        
+
         if (IsKeyPressed(KEY_ENTER)) {
             typing = !typing;
             if (!typing && !searchQuery.empty()) {
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
                 SearchNode(root, searchQuery);
             }
         }
-        
+
         if (typing) {
             int key = GetKeyPressed();
             if (key >= 32 && key <= 125) {
@@ -193,28 +193,28 @@ int main(int argc, char* argv[]) {
                 searchQuery.pop_back();
             }
         }
-        
+
         BeginDrawing();
             ClearBackground(BLACK);
             DrawAST(root, {600, 100}, 1200, 200, zoom, offset, time);
-            
-            
+
+
             const char* title = "Abstract Syntax Tree";
             int titleFontSize = 40;
             Color titleColor = ColorFromHSV(fmodf(time * 60, 360), 0.7f, 1.0f);
             DrawText(title, (GetScreenWidth() - MeasureText(title, titleFontSize)) / 2, 20, titleFontSize, titleColor);
-            
-            
+
+
             DrawRectangle(10, GetScreenHeight() - 50, 300, 40, Fade(LIGHTGRAY, 0.3f));
             DrawRectangleLines(10, GetScreenHeight() - 50, 300, 40, LIGHTGRAY);
             DrawText(searchQuery.c_str(), 20, GetScreenHeight() - 40, 20, WHITE);
             DrawText(typing ? "Press ENTER to search" : "Press ENTER to type", 20, GetScreenHeight() - 70, 15, GRAY);
-            
-            
+
+
             DrawText("Type to search for nodes. Matching nodes and their ancestors will be highlighted in orange.", 10, GetScreenHeight() - 100, 15, GRAY);
         EndDrawing();
     }
-    
+
     CloseWindow();
     return 0;
 }
